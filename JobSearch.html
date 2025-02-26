@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="JobSearch.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+    
+        </style>
+        
+
+    
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <img src="Joblogo.png" alt="logo" class="img">
+            <span id="logotext">CareerLane</span>
+        </div>
+        <input type="text" class="input" placeholder="Enter job title">
+        <select name=""  id="country_selection" placeholder="enter country">
+            <option value="" disabled selected>Select a country</option>
+            <option value="gb">United Kingdom</option>
+            <option value="us">United States</option>
+            <option value="jp">Japan</option>
+            <option value="mx">Mexico</option>
+            <option value="nl">Netherlands</option>
+            <option value="nz">New Zealand</option>
+            <option value="pl">Poland</option>
+            <option value="ru">Russia</option>
+            <option value="sg">Singapore</option>
+            <option value="za">South Africa</option>
+            <option value="se">Sweden</option>
+        </select>
+
+        <button class="search">Find jobs</button>
+    </header>
+    <div id="spinner_container">
+        <div class="spinner"></div>
+    </div>
+    <h2 class="rec_text">Recommended Jobs</h2>
+    <div class="cards">
+         <!-- <div class="card">
+        <p ><strong>Company:</strong> ${name}</p>
+        <p ><strong>Title:</strong> ${title}</p>
+        <p ><strong>Locationjob:</strong> ${Locationjob}</p>
+        <p class="salary" ><strong>salary:</strong> €${salary}/year</p>
+        
+        <p class="description" ><strong>description:</strong > Lorem ipsum dolor, sit amet consectetur adipisicing elit. Non nihil consequuntur, repellendus adipisci fuga quos recusandae eaque sint alias in.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Non nihil consequuntur, repellendus adipisci fuga quos recusandae eaque sint alias in.</p>
+        <a href="" >click here</a>
+      </div> -->
+      <!-- second card -->
+    </div>
+    <div class="black_sheet" id="overlay"></div>
+
+    <div class="card2_container" id="popupCard">
+        <div id="card2">
+            <div class="topdiv">
+            <p><span id="title" data-title="">Frontend Developer</span></p>
+            <div id="closeBtn"><i class="bi bi-x-lg"></i></div>
+        </div>
+            <p class="company"><i class="bi bi-buildings-fill icon_loc"></i> <span id="company2" ></span></p>
+            <p class="location"><i class="bi bi-geo-alt-fill icon_loc"></i> <span id="location2" ></span></p>
+            <p class="salary"> €<span id="salary2" ></span>/year</p>
+            <p class="description2"><strong>Description:</strong> <span id="description2" >Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit dolore ipsum illo accusantium natus, sint nesciunt consectetur dolor voluptate ratione nemo dignissimos perspiciatis? Saepe, ex. elit. Suscipit dolore ipsum illo accusantium natus, sint nesciunt consectetur dolor voluptate ratione nemo dignissimos perspiciatis? Saepe, ex.</span></p>
+            
+            <div class="bottomdiv">
+            <p class="created"> <span id="created" data-created="">12/2/24</span></p>
+            <div id="applyNow"><a id="jobLink" href="#" target="_blank">Apply Now</a></div>
+        </div>
+        </div>
+    </div>
+    
+    <!-- <script src="JobSearch.js"></script> -->
+    <script src="test.js"></script>
+
+</body>
+</html>
