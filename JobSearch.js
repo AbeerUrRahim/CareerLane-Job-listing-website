@@ -1,117 +1,233 @@
-const appId = "83fc6d81"; 
-const appKey = "b9e30bb4dc0fc4e6f5695938a907227e"; 
-let country = ""; 
-// let searchQuery = document.querySelector('.input'); 
- let searchQuery = document.querySelector('.input'); 
-// let Title=searchQuery.value
-const jobLocation = "London"; 
-let selectCountry= document.querySelector("#country_selection")
+const appId = "83fc6d81";
+const appKey = "b9e30bb4dc0fc4e6f5695938a907227e";
+let country = "";
+let searchQuery = document.querySelector('.input');
+let selectCountry = document.querySelector("#country_selection");
+let search = document.querySelector('.search');
+let cards = document.querySelector('.cards'); 
 
-let country_Option= document.querySelectorAll('option')
-function getCountry(event){
-  country= event.target.value
-  // console.log(Title)
-  console.log("country is: "+country)
-}
-selectCountry.addEventListener('change',getCountry)
+selectCountry.addEventListener('change', (event) => {
+    country = event.target.value;
+    console.log("country is: " + country);
+});
 
-let search = document.querySelector('.search')
-
-
+let rec_jobs=document.querySelector('.rec_text')
 async function Getdata() {
-  try {
-    const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${appId}&app_key=${appKey}&what=${encodeURIComponent(searchQuery.value)}&where=${encodeURIComponent(jobLocation)}&results_per_page=10`;
-    let jobData = await fetch(url);
-    // console.log(Title)
-    let parsedData = await jobData.json();
-    console.log(parsedData);
+    try {
+        const url = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?app_id=${appId}&app_key=${appKey}&what=${encodeURIComponent(searchQuery.value)}&where=${encodeURIComponent("London")}&results_per_page=10`; // Fixed jobLocation
+        let jobData = await fetch(url);
+        let parsedData = await jobData.json();
+        console.log(parsedData);
 
-    let cards = document.querySelector('.cards');
+        rec_jobs.style.display="none"
+        displayCards(parsedData); // Call displayCards directly
+    } catch (error) {
+        console.error("Error fetching jobs:", error);
+        cards.innerHTML = "<p>Error fetching job listings.</p>"; // Display error message
+    }
+}
 
-    function displayCards(parsedData) {
-      if (!parsedData.results || parsedData.results.length === 0) {
+
+function displayCards(parsedData) {
+    if (!parsedData.results || parsedData.results.length === 0) {
         cards.innerHTML = "<p>No job listings found.</p>";
         return;
-      }
-      
-      let cardsData = parsedData.results.map(job => ({
-        name: job.company?.display_name || "N/A",
-        title: job.title || "N/A",
-        Locationjob: job.location.display_name || "N/A",
-        salary: job.salary_max|| "",
-        contract:job.contract_type||"N/A",
-        created:job.created ||"",
-        description:job.description ||"",
-        redirect_Url:job.redirect_url
-        
-      }));
-      const date=new Date(cardsData.created)
-      let dateLocal= date.toLocaleString()
-      let jobCards = document.querySelectorAll('.card');
-
-      // Select popup elements
-      let popupCard = document.querySelector('.card2_container');
-      let overlay = document.querySelector('#overlay'); 
-      let closeButton = document.querySelector('#closeBtn');
-      let jobCards_container=document.querySelector('.cards')
-      
-      // Add click event to each job card
-          jobCards_container.addEventListener('click', (event) => {
-            let clickedCard=event.target.closest('.card')
-           
-            // if(!clickedCard)return;
-            let companyName = clickedCard.name;
-            console.log(companyName)
-    let title = clickedCard.dataset.title;
-    let location = clickedCard.dataset.location;
-    let salary = clickedCard.dataset.salary;
-    let description = clickedCard.dataset.description;
-    let jobLink = clickedCard.dataset.url;
-
-    // Update popup content
-    document.getElementById('company').textContent = companyName;
-    document.getElementById('title').textContent = title;
-    document.getElementById('location').textContent = location;
-    document.getElementById('salary').textContent = salary;
-    document.getElementById('description').textContent = description;
-    document.getElementById('jobLink').href = jobLink;
-
-              popupCard.style.display = "flex"; // Show the popup
-              overlay.style.display = "block"; // Show overlay
-              
-          });
-      
-      // Close popup when clicking outside or on the button
-      function closePopup() {
-          popupCard.style.display = "none";
-          overlay.style.display = "none";
-      }
-      overlay.addEventListener('click', closePopup);
-      let maps = cardsData.map(({ name, title ,Locationjob,salary,contract,dateLocal,description,redirect_Url}) => 
-        `<div class="card">
-          <p><strong>Company:</strong> ${name}</p>
-          <p><strong>Title:</strong> ${title}</p>
-          <p><strong>Locationjob:</strong> ${Locationjob}</p>
-          <p class="salary"><strong>salary:</strong> €${salary}/year</p>
-          
-          <p class="description"><strong>description:</strong > ${description}</p>
-          <a href="${redirect_Url}">click here</a>
-        </div>`
-      ).join("");
-
-      cards.innerHTML = maps;
     }
 
-    displayCards(parsedData);
-  } catch (error) {
-    console.error("Error fetching jobs:", error);
-  }
+    cards.innerHTML = ""; // Clear existing cards
+
+    parsedData.results.forEach(job => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.title = job.title || "N/A";
+        card.dataset.location = job.location.display_name || "N/A";
+        card.dataset.created = job.created ? job.created.split("T")[0] : "N/A";
+        card.dataset.salary = job.salary_max || "";
+        card.dataset.description = job.description || "";
+        card.dataset.url = job.redirect_url;
+        card.dataset.company = job.company?.display_name || "N/A"; // Store company name
+        card.innerHTML = `
+        <p class="card_title">${card.dataset.title}</p>
+        <p class="company">
+            <i class="bi bi-buildings-fill icon_loc"></i> 
+            <span id="company" data-name="${card.dataset.company}">${card.dataset.company}</span>
+        </p>
+        <p class="location">
+            <i class="bi bi-geo-alt-fill icon_loc"></i> 
+            <span id="location" data-location="${card.dataset.location}">${card.dataset.location}</span>
+        </p>
+        <p class="salary"> €<span id="salary" data-salary="${card.dataset.salary}">${card.dataset.salary}</span>/year</p>
+        <p class="description"><strong>description:</strong> ${card.dataset.description}</p>
+    `;
+    
+
+        cards.appendChild(card);
+    });
+
+        // Popup logic (moved inside displayCards after card creation)
+        let popupCard = document.querySelector('#popupCard');
+        let overlay = document.querySelector('#overlay');
+        let closeButton = document.querySelector('#closeBtn');
+        let card2=document.querySelector('#card2')
+
+        cards.addEventListener('click', (event) => {
+            let clickedCard = event.target.closest('.card');
+            if (!clickedCard) return;
+            
+            console.log("Company:", clickedCard.dataset.company);
+            console.log("Location:", clickedCard.dataset.location);
+            console.log("Salary:", clickedCard.dataset.salary);
+
+            document.getElementById('company2').innerText = clickedCard.dataset.company;
+document.getElementById('location2').innerText = clickedCard.dataset.location;
+document.getElementById('salary2').innerText = clickedCard.dataset.salary;
+
+            // document.getElementById('company').textContent = clickedCard.dataset.company;
+            document.getElementById('title').textContent = clickedCard.dataset.title;
+            document.getElementById('created').textContent = clickedCard.dataset.created;
+            // document.getElementById('location').textContent = clickedCard.dataset.location;
+            // document.getElementById('salary').textContent = clickedCard.dataset.salary;
+            document.getElementById('description2').textContent = clickedCard.dataset.description;
+            let applyNow=document.getElementById('applyNow')
+            applyNow.addEventListener('click',()=>{
+
+                let jobLink=document.getElementById('jobLink').href = clickedCard.dataset.url;
+                if (jobLink && jobLink !== "#") {
+                    window.open(jobLink, "_blank")
+                }
+            })
+
+            popupCard.style.display = "flex";
+            overlay.style.display = "block";
+            card2.style.visibility='visible';
+        });
+        
+        function closePopup() {
+            popupCard.style.display = "none";
+            overlay.style.display = "none";
+            card2.style.visibility='hidden'
+        }
+    
+        closeButton.addEventListener('click', closePopup);
+
+}
+function display_recommended_Cards(parsedData) {
+    if (!parsedData.results || parsedData.results.length === 0) {
+        cards.innerHTML = "<p>No job listings found.</p>";
+        return;
+    }
+
+    // cards.innerHTML = ""; // Clear existing cards
+
+    parsedData.results.forEach(job => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.title = job.title || "N/A";
+        card.dataset.location = job.location.display_name || "N/A";
+        card.dataset.created = job.created ? job.created.split("T")[0] : "N/A";
+        card.dataset.salary = job.salary_max || "";
+        card.dataset.description = job.description || "";
+        card.dataset.url = job.redirect_url;
+        card.dataset.company = job.company?.display_name || "N/A"; // Store company name
+        card.innerHTML = `
+        <p class="card_title">${card.dataset.title}</p>
+        <p class="company">
+            <i class="bi bi-buildings-fill icon_loc"></i> 
+            <span id="company" data-name="${card.dataset.company}">${card.dataset.company}</span>
+        </p>
+        <p class="location">
+            <i class="bi bi-geo-alt-fill icon_loc"></i> 
+            <span id="location" data-location="${card.dataset.location}">${card.dataset.location}</span>
+        </p>
+        <p class="salary"> €<span id="salary" data-salary="${card.dataset.salary}">${card.dataset.salary}</span>/year</p>
+        <p class="description"><strong>description:</strong> ${card.dataset.description}</p>
+    `;
+    
+
+        cards.appendChild(card);
+    });
+
+        // Popup logic (moved inside displayCards after card creation)
+        let popupCard = document.querySelector('#popupCard');
+        let overlay = document.querySelector('#overlay');
+        let closeButton = document.querySelector('#closeBtn');
+        let card2=document.querySelector('#card2')
+
+        cards.addEventListener('click', (event) => {
+            let clickedCard = event.target.closest('.card');
+            if (!clickedCard) return;
+            
+            console.log("Company:", clickedCard.dataset.company);
+            console.log("Location:", clickedCard.dataset.location);
+            console.log("Salary:", clickedCard.dataset.salary);
+
+            document.getElementById('company2').innerText = clickedCard.dataset.company;
+document.getElementById('location2').innerText = clickedCard.dataset.location;
+document.getElementById('salary2').innerText = clickedCard.dataset.salary;
+
+            // document.getElementById('company').textContent = clickedCard.dataset.company;
+            document.getElementById('title').textContent = clickedCard.dataset.title;
+            document.getElementById('created').textContent = clickedCard.dataset.created;
+            // document.getElementById('location').textContent = clickedCard.dataset.location;
+            // document.getElementById('salary').textContent = clickedCard.dataset.salary;
+            document.getElementById('description2').textContent = clickedCard.dataset.description;
+            let applyNow=document.getElementById('applyNow')
+            applyNow.addEventListener('click',()=>{
+
+                let jobLink=document.getElementById('jobLink').href = clickedCard.dataset.url;
+                if (jobLink && jobLink !== "#") {
+                    window.open(jobLink, "_blank")
+                }
+            })
+
+            popupCard.style.display = "flex";
+            overlay.style.display = "block";
+            card2.style.visibility='visible';
+        });
+        
+        function closePopup() {
+            popupCard.style.display = "none";
+            overlay.style.display = "none";
+            card2.style.visibility='hidden'
+        }
+    
+        // overlay.addEventListener('click', closePopup);
+        closeButton.addEventListener('click', closePopup);
+
 }
 
-// Example: Call with your API URL
-// Getdata(url);
-// Select all job cards
+//random card generation
+let titles_arr = ["Frontend Developer", "Designer", "Chartered Accountant", "Fullstack Developer", "Content Writer"];
 
-// closeButton.addEventListener('click', closePopup);
+async function fetchJobs(title) {
+    try {
+        const url = `https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=${appId}&app_key=${appKey}&what=${encodeURIComponent(title)}&where=${encodeURIComponent("London")}&results_per_page=2`; 
+        let jobData = await fetch(url);
+        let parsedData = await jobData.json();
+        console.log(parsedData);
+        
+        display_recommended_Cards(parsedData); // Call displayCards with the fetched data
+    } catch (error) {
+        console.error("Error fetching jobs:", error);
+        cards.innerHTML = "<p>Error fetching job listings.</p>"; // Display error message
+    }
+}
+let Spinner=document.querySelector('.spinner')
+// Fetch jobs with a delay to avoid "Too many requests" error
+async function fetchAllJobs() {
+    Spinner.style.display="flex"
+    for (let i = 0; i < titles_arr.length; i++) {
+        await fetchJobs(titles_arr[i]);  
+        await new Promise(resolve => setTimeout(resolve, 2000)); // 2-second delay
+    }
+    Spinner.style.display="none"
 
-search.addEventListener('click',Getdata)
+}
+
+fetchAllJobs();
+
+
+
+
+
+    search.addEventListener('click', Getdata);
